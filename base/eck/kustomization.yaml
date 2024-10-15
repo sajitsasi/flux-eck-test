@@ -3,5 +3,7 @@ kind: Kustomization
 namespace: elastic-system
 resources:
   - ns-elastic-system.yaml
+  - ns-elastic-stack.yaml
   - source.yaml
   - eck-operator.yaml
+  - eck-stack.yaml

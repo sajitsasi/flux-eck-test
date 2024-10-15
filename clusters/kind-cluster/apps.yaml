@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s  # How frequently Flux checks for updates
-  path: "./"  # Path to the source.yaml and eck-operator.yaml
+  path: "../base/eck"  # Path to the source.yaml and eck-operator.yaml
   prune: true  # Ensures resources not in Git are deleted
   sourceRef:
     kind: GitRepository
@@ -17,8 +17,4 @@ spec:
       name: elastic-operator
       namespace: elastic-system  # Monitors the health of the HelmRelease
   dependsOn:
-    - name: elastic  # Ensures the HelmRepository is reconciled before the HelmRelease
-  resources:
-    - ns-elastic-system.yaml
-    - source.yaml
-    - eck-operator.yaml
+    - name: flux-system

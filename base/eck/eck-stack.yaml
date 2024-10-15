@@ -1,0 +1,72 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: elasticsearch
+  namespace: elastic-stack
+spec:
+  releaseName: elasticsearch
+  chart:
+    spec:
+      chart: eck-stack
+      version: "8.15.0"  # Adjust to the latest version you want
+      sourceRef:
+        kind: HelmRepository
+        name: elastic
+        namespace: elastic-system
+  interval: 10m
+  timeout: 5m
+  values:
+    eck-elasticsearch:
+      fullnameOverride: elasticsearch
+      version: 8.15.0
+      nodeSets:
+        - name: default
+          count: 3
+          config:
+            node.store.allow_mmap: false
+          volumeClaimTemplates:
+            - metadata:
+                name: elasticsearch-data
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 5Gi
+    eck-kibana:
+      fullnameOverride: kibana
+      version: 8.15.0
+      spec:
+        count: 1
+        elasticsearchRef:
+          name: elasticsearch
+        http:
+          service:
+            spec:
+              type: NodePort
+        podTemplate:
+          spec:
+            containers:
+              - name: kibana
+                env:
+                  - name: NODE_OPTIONS
+                    value: "--max-old-space-size=2048"
+                resources:
+                  requests:
+                    memory: 1Gi
+                    cpu: 0.5
+                  limits:
+                    memory: 2Gi
+                    cpu: 1
+    eck-agent:
+      enabled: false
+    eck-fleet-server:
+      enabled: false
+    eck-beats:
+      enabled: false
+    eck-logstash:
+      enabled: false
+    eck-apm-server:
+      enabled: false
+    eck-enterprise-search:
+      enabled: false
